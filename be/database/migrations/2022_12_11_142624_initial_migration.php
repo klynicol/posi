@@ -15,7 +15,7 @@ return new class extends Migration
     public function up()
     {
         /**
-         * Customers
+         * Base Tables
          */
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
@@ -49,39 +49,9 @@ return new class extends Migration
             $table->string('balance');
             $table->timestamps();
         });
-        
 
-        /**
-         * Orders
-         */
-        Schema::create('orders', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('customer_id')->nullable();
-            $table->integer('employee_id')->nullable();
-            $table->string('order_number');
-            $table->string('order_date');
-            $table->string('order_status');
-            $table->string('order_total');
-            $table->timestamps();
 
-            $table->foreign('customer_id')->references('id')->on('customers');
-            $table->foreign('employee_id')->references('id')->on('employees');
 
-            DB::statement("ALTER TABLE orders ADD CHECK (
-                customer_id IS NOT NULL 
-                OR employee_id IS NOT NULL
-            )");
-        });
-
-        Schema::create('order_items', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('order_id');
-            $table->unsignedBigInteger('product_id');
-            $table->string('product_name');
-            $table->string('product_price');
-            $table->string('product_quantity');
-            $table->timestamps();
-        });
 
         /**
          * Products
@@ -100,7 +70,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::crate('product_collections', function (Blueprint $table) {
+        Schema::create('product_collections', function (Blueprint $table) {
             $table->id();
             $table->string('product_collection_name');
             $table->timestamps();
@@ -144,73 +114,10 @@ return new class extends Migration
             $table->timestamps();
         });
 
-
-        /**
-         * Generics
-         */
-        Schema::create('images', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('product_id')->nullable();
-            $table->unsignedBigInteger('customer_id')->nullable();
-            $table->string('image_name');
-            $table->string('image_type');
-            $table->string('image_size');
-            $table->string('image_width');
-            $table->string('image_height');
-            $table->string('image_alt');
-            $table->string('image_title');
-            $table->string('image_description');
-            $table->string('image_url');
-            $table->timestamps();
-
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
-            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
-
-            DB::statement("ALTER TABLE images ADD CHECK (
-                product_id IS NOT NULL 
-                OR customer_id IS NOT NULL
-            )");
-        });
-
-        Schema::create('addresses', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('customer_id')->nullable();
-            $table->integer('employee_id')->nullable();
-            $table->string('address');
-            $table->string('city');
-            $table->string('state');
-            $table->string('country');
-            $table->string('zip');
-            $table->timestamps();
-
-            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
-            $table->foreign('employee_id')->references('id')->on('employees')->onDelete('cascade');
-
-            Db::statement("ALTER TABLE addresses ADD CHECK (
-                customer_id IS NOT NULL 
-                OR employee_id IS NOT NULL
-            )");
-        });
-
-        Schema::create('phone_numbers', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('customer_id')->nullable();
-            $table->integer('employee_id')->nullable();
-            $table->string('phone_number');
-            $table->timestamps();
-
-            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
-            $table->foreign('employee_id')->references('id')->on('employees')->onDelete('cascade');
-
-            Db::statement("ALTER TABLE phone_numbers ADD CHECK (
-                customer_id IS NOT NULL 
-                OR employee_id IS NOT NULL
-            )");
-        });
-
         /**
          * Employees
          */
+
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
             $table->string('employee_name');
@@ -236,6 +143,34 @@ return new class extends Migration
             $table->id();
             $table->integer('employee_id');
             $table->unsignedBigInteger('order_id');
+            $table->timestamps();
+        });
+
+        /**
+         * Orders
+         */
+        Schema::create('orders', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('customer_id')->nullable()->constrained();
+            $table->foreignId('employee_id')->nullable()->constrained();
+            $table->string('order_number');
+            $table->string('order_date');
+            $table->string('order_status');
+            $table->string('order_total');
+            $table->timestamps();
+        });
+        DB::statement("ALTER TABLE orders ADD CHECK (
+            customer_id IS NOT NULL 
+            OR employee_id IS NOT NULL
+        )");
+
+        Schema::create('order_items', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('order_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('product_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->string('product_name');
+            $table->string('product_price');
+            $table->string('product_quantity');
             $table->timestamps();
         });
 
@@ -301,7 +236,64 @@ return new class extends Migration
             $table->integer('product_collection_id');
             $table->timestamps();
         });
-        
+
+        Schema::create('discounts_loyalty_programs', function (Blueprint $table) {
+            $table->id();
+            $table->integer('discount_id');
+            $table->integer('loyalty_program_id');
+            $table->timestamps();
+        });
+
+        /**
+         * Generics
+         */
+        Schema::create('images', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('product_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('customer_id')->nullable()->constrained()->onDelete('cascade');
+            $table->string('image_name');
+            $table->string('image_type');
+            $table->string('image_size');
+            $table->string('image_width');
+            $table->string('image_height');
+            $table->string('image_alt');
+            $table->string('image_title');
+            $table->string('image_description');
+            $table->string('image_url');
+            $table->timestamps();
+        });
+        DB::statement("ALTER TABLE images ADD CHECK (
+            product_id IS NOT NULL 
+            OR customer_id IS NOT NULL
+        )");
+
+        Schema::create('addresses', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('customer_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('employee_id')->nullable()->constrained()->onDelete('cascade');
+            $table->string('address');
+            $table->string('city');
+            $table->string('state');
+            $table->string('country');
+            $table->string('zip');
+            $table->timestamps();
+        });
+        DB::statement("ALTER TABLE addresses ADD CHECK (
+            customer_id IS NOT NULL 
+            OR employee_id IS NOT NULL
+        )");
+
+        Schema::create('phone_numbers', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('customer_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('employee_id')->nullable()->constrained()->onDelete('cascade');
+            $table->string('phone_number');
+            $table->timestamps();
+        });
+        DB::statement("ALTER TABLE phone_numbers ADD CHECK (
+            customer_id IS NOT NULL 
+            OR employee_id IS NOT NULL
+        )");
     }
 
     /**
@@ -331,5 +323,12 @@ return new class extends Migration
         Schema::dropIfExists('product_categories');
         Schema::dropIfExists('products');
         Schema::dropIfExists('customers');
+        Schema::dropIfExists('orders');
+        Schema::dropIfExists('loyalty_programs');
+        Schema::dropIfExists('discounts_loyalty_programs');
+        DB::statement("DROP CHECK IF EXISTS images");
+        DB::statement("DROP CHECK IF EXISTS addresses");
+        DB::statement("DROP CHECK IF EXISTS phone_numbers");
+        DB::statement("DROP CHECK IF EXISTS orders");
     }
 };
