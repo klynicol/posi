@@ -21,7 +21,6 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('club')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
@@ -32,7 +31,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('price');
-            $table->string('quantity');
+            $table->string('description');
             $table->timestamps();
         });
 
@@ -58,25 +57,42 @@ return new class extends Migration
             $table->id();
             $table->foreignId('customer_id')->nullable()->constrained();
             $table->foreignId('employee_id')->nullable()->constrained();
-            $table->string('order_number');
-            $table->string('order_date');
-            $table->string('order_status');
-            $table->string('order_total');
+            $table->string('number');
+            $table->timestamp('date_paid')->nullable();
+            $table->string('status');
+            $table->string('total');
             $table->timestamps();
         });
-        DB::statement("ALTER TABLE orders ADD CHECK (
+        DB::statement("ALTER TABLE orders ADD CONSTRAINT orders_multi CHECK (
             customer_id IS NOT NULL 
             OR employee_id IS NOT NULL
         )");
 
         Schema::create('discounts', function (Blueprint $table) {
             $table->id();
-            $table->string('discount_name');
-            $table->string('discount_code');
-            $table->string('discount_description');
-            $table->string('discount_type');
-            $table->string('discount_scope'); // Percentage, Fixed
-            $table->string('discount_value');
+            $table->string('name');
+            $table->string('code');
+            $table->string('description');
+            $table->string('type');
+            $table->string('scope'); // Percentage, Fixed
+            $table->string('value');
+            $table->timestamps();
+        });
+
+        /**
+         * Clubs
+         */
+        Schema::create('clubs', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('description');
+            $table->timestamps();
+        });
+
+        Schema::create('club_customers', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('customer_id')->constrained()->onDelete('cascade');
+            $table->foreignId('club_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
 
@@ -86,7 +102,7 @@ return new class extends Migration
          */
         Schema::create('product_categories', function (Blueprint $table) {
             $table->id();
-            $table->string('product_category_name');
+            $table->string('name');
             $table->timestamps();
         });
 
@@ -99,7 +115,7 @@ return new class extends Migration
 
         Schema::create('product_collections', function (Blueprint $table) {
             $table->id();
-            $table->string('collection_name');
+            $table->string('name');
             $table->timestamps();
         });
 
@@ -134,6 +150,13 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        Schema::create('product_tag_products', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->foreignId('product_tag_id')->constrained()->onDelete('cascade');
+            $table->timestamps();
+        });
+
 
         /**
          * Services
@@ -150,22 +173,22 @@ return new class extends Migration
          */
         Schema::create('employee_roles', function (Blueprint $table) {
             $table->id();
-            $table->integer('employee_id');
+            $table->foreignId('employee_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->string('role');
             $table->timestamps();
         });
 
         Schema::create('employee_permissions', function (Blueprint $table) {
             $table->id();
-            $table->integer('employee_id');
+            $table->foreignId('employee_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
             $table->string('permission');
             $table->timestamps();
         });
 
         Schema::create('employee_orders', function (Blueprint $table) {
             $table->id();
-            $table->integer('employee_id');
-            $table->unsignedBigInteger('order_id');
+            $table->foreignId('employee_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
+            $table->foreignId('order_id')->constrained()->onUpdate('cascade');;
             $table->timestamps();
         });
 
@@ -298,7 +321,7 @@ return new class extends Migration
             $table->string('url');
             $table->timestamps();
         });
-        DB::statement("ALTER TABLE images ADD CHECK (
+        DB::statement("ALTER TABLE images ADD CONSTRAINT images_multi CHECK (
             product_id IS NOT NULL 
             OR customer_id IS NOT NULL
         )");
@@ -314,7 +337,7 @@ return new class extends Migration
             $table->string('zip');
             $table->timestamps();
         });
-        DB::statement("ALTER TABLE addresses ADD CHECK (
+        DB::statement("ALTER TABLE addresses ADD CONSTRAINT addresses_multi CHECK (
             customer_id IS NOT NULL 
             OR employee_id IS NOT NULL
         )");
@@ -326,7 +349,7 @@ return new class extends Migration
             $table->string('phone_number');
             $table->timestamps();
         });
-        DB::statement("ALTER TABLE phone_numbers ADD CHECK (
+        DB::statement("ALTER TABLE phone_numbers ADD CONSTRAINT phone_numbers_multi CHECK (
             customer_id IS NOT NULL 
             OR employee_id IS NOT NULL
         )");
@@ -369,56 +392,68 @@ return new class extends Migration
      */
     public function down()
     {
-        // Base
-        Schema::dropIfExists('customers');
-        Schema::dropIfExists('products');
-        Schema::dropIfExists('services');
-        Schema::dropIfExists('employees');
-        Schema::dropIfExists('orders');
-        Schema::dropIfExists('discounts');
-        // Customers
-        Schema::dropIfExists('customer_orders');
-        // Loyalty Programs
-        Schema::dropIfExists('loyalty_programs');
-        schema::dropIfExists('loyalty_programs_customers');
-        // Products
-        Schema::dropIfExists('product_categories');
-        Schema::dropIfExists('product_tags');
-        Schema::dropIfExists('product_collections');
-        Schema::dropIfExists('product_variants');
-        Schema::dropIfExists('product_reviews');
-        Schema::dropIfExists('product_collection_products');
-        Schema::dropIfExists('product_category_products');
-        // Services
-        Schema::dropIfExists('service_categories');
-        // Employees
-        Schema::dropIfExists('employee_roles');
-        Schema::dropIfExists('employee_permissions');
-        Schema::dropIfExists('employee_orders');
-        // Orders
-        Schema::dropIfExists('order_items');
-        Schema::dropIfExists('order_services');
-        // Discounts
-        Schema::dropIfExists('discounts_products');
-        Schema::dropIfExists('discounts_orders');
-        Schema::dropIfExists('discounts_customers');
-        Schema::dropIfExists('discounts_employees');
-        Schema::dropIfExists('discounts_categories');
-        Schema::dropIfExists('discounts_variants');
-        Schema::dropIfExists('discounts_collections');
-        Schema::dropIfExists('discounts_loyalty_programs');
-        // Generics
-        Schema::dropIfExists('images');
-        Schema::dropIfExists('addresses');
-        Schema::dropIfExists('phone_numbers');
-        // Utility
-        Schema::dropIfExists('password_resets');
-        Schema::dropIfExists('personal_access_tokens');
-        Schema::dropIfExists('failed_jobs');
+        Schema::dropDatabaseIfExists('posi');
+        // /** First drop the multi key table checks */
+        // DB::statement("ALTER TABLE `images` DROP CONSTRAINT IF EXISTS `images_multi`");
+        // DB::statement("ALTER TABLE `addresses` DROP CONSTRAINT IF EXISTS `addresses_multi`");
+        // DB::statement("ALTER TABLE `phone_numbers` DROP CONSTRAINT IF EXISTS `phone_numbers_multi`");
+        // DB::statement("ALTER TABLE `orders` DROP CONSTRAINT IF EXISTS `orders_multi`");
 
-        DB::statement("DROP CHECK IF EXISTS images");
-        DB::statement("DROP CHECK IF EXISTS addresses");
-        DB::statement("DROP CHECK IF EXISTS phone_numbers");
-        DB::statement("DROP CHECK IF EXISTS orders");
+        // /** Next first have to drop foreign keys where onDelete('cascade') is not present */
+        // Schema::table('orders', function (Blueprint $table) {
+        //     $table->dropForeign(['customer_id']);
+        //     $table->dropForeign(['employee_id']);
+        // });
+        // Schema::table('customer_orders', function (Blueprint $table) {
+        //     $table->dropForeign(['customer_id']);
+        //     $table->dropForeign(['order_id']);
+        // });
+
+        // // Customers
+        // Schema::dropIfExists('customer_orders');
+        // // Loyalty Programs
+        // Schema::dropIfExists('loyalty_programs');
+        // schema::dropIfExists('loyalty_program_customers');
+        // // Products
+        // Schema::dropIfExists('product_categories');
+        // Schema::dropIfExists('product_tags');
+        // Schema::dropIfExists('product_collections');
+        // Schema::dropIfExists('product_variants');
+        // Schema::dropIfExists('product_reviews');
+        // Schema::dropIfExists('product_collection_products');
+        // Schema::dropIfExists('product_category_products');
+        // // Services
+        // Schema::dropIfExists('service_categories');
+        // // Employees
+        // Schema::dropIfExists('employee_roles');
+        // Schema::dropIfExists('employee_permissions');
+        // Schema::dropIfExists('employee_orders');
+        // // Orders
+        // Schema::dropIfExists('order_items');
+        // Schema::dropIfExists('order_services');
+        // // Discounts
+        // Schema::dropIfExists('discounts_products');
+        // Schema::dropIfExists('discounts_orders');
+        // Schema::dropIfExists('discounts_customers');
+        // Schema::dropIfExists('discounts_employees');
+        // Schema::dropIfExists('discounts_categories');
+        // Schema::dropIfExists('discounts_variants');
+        // Schema::dropIfExists('discounts_collections');
+        // Schema::dropIfExists('discounts_loyalty_programs');
+        // // Generics
+        // Schema::dropIfExists('images');
+        // Schema::dropIfExists('addresses');
+        // Schema::dropIfExists('phone_numbers');
+        // // Utility
+        // Schema::dropIfExists('password_resets');
+        // Schema::dropIfExists('personal_access_tokens');
+        // Schema::dropIfExists('failed_jobs');
+        // // Base
+        // Schema::dropIfExists('customers');
+        // Schema::dropIfExists('products');
+        // Schema::dropIfExists('services');
+        // Schema::dropIfExists('employees');
+        // Schema::dropIfExists('orders');
+        // Schema::dropIfExists('discounts');
     }
 };
