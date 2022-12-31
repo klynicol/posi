@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import './App.scss'
-import Home from './pages/Home';
+import Checkout from './pages/Checkout';
 import Menu from './pages/Menu';
 
 function App() {
@@ -8,7 +8,7 @@ function App() {
   return (
     <div className="App h-screen">
       <Routes>
-        <Route path="/" element={<Home/>} />
+        <Route path="/" element={<Checkout/>} />
         <Route path="/menu" element={<Menu/> } />
       </Routes>
     </div>

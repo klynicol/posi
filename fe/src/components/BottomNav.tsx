@@ -1,7 +1,7 @@
-import { NavLink, useNavigate } from "react-router-dom";
-import { AcademicCapIcon, Bars3Icon, TableCellsIcon } from "@heroicons/react/24/outline";
+import { useNavigate } from "react-router-dom";
+import { AcademicCapIcon, Bars3Icon, Square2StackIcon, Squares2X2Icon, TableCellsIcon } from "@heroicons/react/24/outline";
 import { BOTTOM_NAV_HEIGHT } from "../constants";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useAppDispatch, useAppSelector } from "../store/hook";
 import { setBottomNavIndex } from "../store/slices/NavigationSlice";
 
@@ -11,6 +11,7 @@ interface BottomNavLinkProps {
   className?: string;
   index: number;
   to: string
+  title?: string;
 }
 
 const BottomNavLink = (props: BottomNavLinkProps) => {
@@ -36,16 +37,12 @@ const BottomNavLink = (props: BottomNavLinkProps) => {
     text-slate-300 ${dynClasses}`}
       onClick={handleActiveButton}>
       {props.icon}
+      {props.title && <span className="pl-2">{props.title}</span>}
     </a>
   );
 };
 
-interface BottomNavProps {
-
-}
-
-const BottomNav = (props: BottomNavProps) => {
-
+const BottomNav = () => {
   return (
     <div className="fixed bottom-0 w-full">
       <nav className='flex items-stretch justify-between'
@@ -59,8 +56,10 @@ const BottomNav = (props: BottomNavProps) => {
         <div className="flex flex-grow">
           <BottomNavLink
             grow={true}
-            icon={<AcademicCapIcon width={20} height={20} />}
+            icon={<Squares2X2Icon width={20} height={20} />}
             index={1}
+            title="Checkout"
+            to="/"
           />
           <BottomNavLink
             grow={true}

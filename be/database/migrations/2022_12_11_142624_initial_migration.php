@@ -448,6 +448,14 @@ return new class extends Migration
             $table->longText('exception');
             $table->timestamp('failed_at')->useCurrent();
         });
+        Schema::create('settings', function (Blueprint $table) {
+            $table->id();
+            $table->string('code')->index('settings_code_index');
+            $table->string('code_alt')->index('settings_code_alt_index');
+            $table->text('value');
+            $table->string('type');
+            $table->timestamps();
+        });
     }
 
     /**

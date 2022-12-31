@@ -1,8 +1,3 @@
-/**
- * File should not be used in production.
- * It should be used as a copy paste helper when creating new slices
- */
-
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface NavigationState {
