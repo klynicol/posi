@@ -11,6 +11,11 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
+    public function __construct()
+    {
+        //$this->middleware('auth:api');
+    }
+
     /**
      * @param mixed $data
      * @param string $message

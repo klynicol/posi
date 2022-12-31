@@ -1,0 +1,5 @@
+cd be
+nohup php artisan serve &
+cd ..
+cd fe
+npm run dev

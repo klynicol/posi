@@ -46,13 +46,13 @@ Route::resources([
 ]);
 
 /** Define and generate some resources for join tables. */
-function apiJoinResource(string $first_resource, string $second_resource, string $controller_class)
+function apiJoinResource(string $one, string $two, string $controller_class)
 {
-    Route::get("{$first_resource}s/{{$first_resource}}/{$second_resource}s", [$controller_class, 'index']);
-    Route::get("{$first_resource}s/{{$first_resource}}/{$second_resource}s/{{$second_resource}}", [$controller_class, 'show']);
-    Route::post("{$first_resource}s/{{$first_resource}}/{$second_resource}s/{{$second_resource}}", [$controller_class, 'store']);
-    Route::put("{$first_resource}s/{{$first_resource}}/{$second_resource}s/{{$second_resource}}", [$controller_class, 'update']);
-    Route::delete("{$first_resource}s/{{$first_resource}}/{$second_resource}s/{{$second_resource}}", [$controller_class, 'destroy']);
+    Route::get("{$one}s/{{$one}}/{$two}s", [$controller_class, 'index']);
+    Route::get("{$one}s/{{$one}}/{$two}s/{{$two}}", [$controller_class, 'show']);
+    Route::post("{$one}s/{{$one}}/{$two}s/{{$two}}", [$controller_class, 'store']);
+    Route::put("{$one}s/{{$one}}/{$two}s/{{$two}}", [$controller_class, 'update']);
+    Route::delete("{$one}s/{{$one}}/{$two}s/{{$two}}", [$controller_class, 'destroy']);
 };
 
 apiJoinResource('product', 'review', ProductReviewProductController::class);

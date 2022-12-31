@@ -304,6 +304,71 @@ return new class extends Migration
         });
 
         /**
+         * Gift Cards
+         */
+        Schema::create('gift_cards', function (Blueprint $table) {
+            $table->id();
+            $table->string('code')->unique();
+            $table->string('name');
+            $table->string('description');
+            $table->string('balance');
+            $table->timestamps();
+        });
+        Schema::create('gift_card_customers', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('gift_card_id')->constrained()->onDelete('cascade');
+            $table->foreignId('customer_id')->constrained()->onDelete('cascade');
+            $table->timestamps();
+        });
+        Schema::create('gift_card_orders', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('gift_card_id')->constrained()->onDelete('cascade');
+            $table->foreignId('order_id')->constrained()->onDelete('cascade');
+            $table->timestamps();
+        });
+        Schema::create('gift_card_discounts', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('gift_card_id')->constrained()->onDelete('cascade');
+            $table->foreignId('discount_id')->constrained()->onDelete('cascade');
+            $table->timestamps();
+        });
+
+        /**
+         * Invoices
+         */
+        Schema::create('invoices', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('order_id')->constrained()->onDelete('cascade');
+            $table->string('name');
+            $table->string('description');
+            $table->string('status');
+            $table->string('total');
+            $table->string('total_tax');
+            $table->string('total_discount');
+            $table->string('total_shipping');
+            $table->string('total_price');
+            $table->string('subtotal_price');
+            $table->string('subtotal_price_with_tax');
+            $table->string('currency');
+            $table->string('taxes_included');       
+            $table->string('financial_status');
+            $table->string('billing_address_company');
+            $table->string('billing_address_address1');
+            $table->string('billing_address_address2');
+            $table->string('billing_address_city'); 
+            $table->string('billing_address_zip');  
+            $table->string('billing_address_province');
+            $table->string('billing_address_country');
+            $table->string('billing_address_phone');
+            $table->string('billing_address_name');
+        });
+
+        /**
+         * Expenses
+         */
+        
+
+        /**
          * Generics
          */
         Schema::create('images', function (Blueprint $table) {
@@ -393,67 +458,5 @@ return new class extends Migration
     public function down()
     {
         Schema::dropDatabaseIfExists('posi');
-        // /** First drop the multi key table checks */
-        // DB::statement("ALTER TABLE `images` DROP CONSTRAINT IF EXISTS `images_multi`");
-        // DB::statement("ALTER TABLE `addresses` DROP CONSTRAINT IF EXISTS `addresses_multi`");
-        // DB::statement("ALTER TABLE `phone_numbers` DROP CONSTRAINT IF EXISTS `phone_numbers_multi`");
-        // DB::statement("ALTER TABLE `orders` DROP CONSTRAINT IF EXISTS `orders_multi`");
-
-        // /** Next first have to drop foreign keys where onDelete('cascade') is not present */
-        // Schema::table('orders', function (Blueprint $table) {
-        //     $table->dropForeign(['customer_id']);
-        //     $table->dropForeign(['employee_id']);
-        // });
-        // Schema::table('customer_orders', function (Blueprint $table) {
-        //     $table->dropForeign(['customer_id']);
-        //     $table->dropForeign(['order_id']);
-        // });
-
-        // // Customers
-        // Schema::dropIfExists('customer_orders');
-        // // Loyalty Programs
-        // Schema::dropIfExists('loyalty_programs');
-        // schema::dropIfExists('loyalty_program_customers');
-        // // Products
-        // Schema::dropIfExists('product_categories');
-        // Schema::dropIfExists('product_tags');
-        // Schema::dropIfExists('product_collections');
-        // Schema::dropIfExists('product_variants');
-        // Schema::dropIfExists('product_reviews');
-        // Schema::dropIfExists('product_collection_products');
-        // Schema::dropIfExists('product_category_products');
-        // // Services
-        // Schema::dropIfExists('service_categories');
-        // // Employees
-        // Schema::dropIfExists('employee_roles');
-        // Schema::dropIfExists('employee_permissions');
-        // Schema::dropIfExists('employee_orders');
-        // // Orders
-        // Schema::dropIfExists('order_items');
-        // Schema::dropIfExists('order_services');
-        // // Discounts
-        // Schema::dropIfExists('discounts_products');
-        // Schema::dropIfExists('discounts_orders');
-        // Schema::dropIfExists('discounts_customers');
-        // Schema::dropIfExists('discounts_employees');
-        // Schema::dropIfExists('discounts_categories');
-        // Schema::dropIfExists('discounts_variants');
-        // Schema::dropIfExists('discounts_collections');
-        // Schema::dropIfExists('discounts_loyalty_programs');
-        // // Generics
-        // Schema::dropIfExists('images');
-        // Schema::dropIfExists('addresses');
-        // Schema::dropIfExists('phone_numbers');
-        // // Utility
-        // Schema::dropIfExists('password_resets');
-        // Schema::dropIfExists('personal_access_tokens');
-        // Schema::dropIfExists('failed_jobs');
-        // // Base
-        // Schema::dropIfExists('customers');
-        // Schema::dropIfExists('products');
-        // Schema::dropIfExists('services');
-        // Schema::dropIfExists('employees');
-        // Schema::dropIfExists('orders');
-        // Schema::dropIfExists('discounts');
     }
 };
