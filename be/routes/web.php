@@ -1,16 +1,9 @@
 <?php
 
-use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\OrderController;
-use App\Http\Controllers\ProductCategoryController;
-use App\Http\Controllers\ProductCollectionController;
-use App\Http\Controllers\ProductCollectionProductController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\ProductReviewController;
-use App\Http\Controllers\ProductReviewProductController;
-use App\Http\Controllers\ProductTagController;
-use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers;
+use App\Models;
+use App\Base\RouteFactory;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,26 +27,81 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::resources([
-    'customers' => CustomerController::class,
-    'products' => ProductController::class,
-    'orders' => OrderController::class,
-    'services' => ServiceController::class,
-    'product_collections' => ProductCollectionController::class,
-    'product_categories' => ProductCategoryController::class,
-    'product_reviews' => ProductReviewController::class,
-    'product_tags' => ProductTagController::class,
-]);
-
-/** Define and generate some resources for join tables. */
-function apiJoinResource(string $one, string $two, string $controller_class)
+/**
+ * Generate crud routes with controller.
+ * 
+ * @param string $slug
+ * @param string $controller
+ * @return void
+ */
+function controllerResourceRoute(string $slug, string $controller)
 {
-    Route::get("{$one}s/{{$one}}/{$two}s", [$controller_class, 'index']);
-    Route::get("{$one}s/{{$one}}/{$two}s/{{$two}}", [$controller_class, 'show']);
-    Route::post("{$one}s/{{$one}}/{$two}s/{{$two}}", [$controller_class, 'store']);
-    Route::put("{$one}s/{{$one}}/{$two}s/{{$two}}", [$controller_class, 'update']);
-    Route::delete("{$one}s/{{$one}}/{$two}s/{{$two}}", [$controller_class, 'destroy']);
-};
+    Route::resource("{$slug}s", $controller)->except(['create', 'edit']);
+}
 
-apiJoinResource('product', 'review', ProductReviewProductController::class);
-apiJoinResource('product', 'collection', ProductCollectionProductController::class);
+
+$controllerResourceRoutes = [
+    'setting' => Controllers\Setting::class,
+];
+
+foreach ($controllerResourceRoutes as $slug => $controller) {
+    controllerResourceRoute($slug, $controller);
+}
+
+
+/**
+ * Generate crud routes with model binding.
+ * 
+ * @param string $slug
+ * @param string $model
+ * @return void
+ */
+function modelResourceRoute($slug, $model)
+{
+    // "index"
+    Route::get("{$slug}s", function () use ($model) {
+        return $model::all();
+    });
+    // "show"
+    Route::get("{$slug}s/{{$slug}}", function ($modelInstance) use ($model) {
+        return $modelInstance;
+    });
+    // "store"
+    Route::post("{$slug}s", function () use ($model) {
+        return $model::create(request()->all());
+    });
+    // "update"
+    Route::put("{$slug}s/{{$slug}}", function ($modelInstance) use ($model) {
+        $modelInstance->update(request()->all());
+        return $modelInstance;
+    });
+    // "destroy"
+    Route::delete("{$slug}s/{{$slug}}", function ($modelInstance) use ($model) {
+        $modelInstance->delete();
+        return $modelInstance;
+    });
+}
+
+$modelResourceRoutes = [
+    // 'customer' => Models\Customer::class,
+    'product' => Models\Product::class,
+    'order' => Models\Order::class,
+    'service' => Models\Service::class,
+    'product_collection' => Models\ProductCollection::class,
+    'product_categorie' => Models\ProductCategory::class,
+    'product_review' => Models\ProductReview::class,
+    'product_tag' => Models\ProductTag::class,
+];
+
+foreach ($modelResourceRoutes as $slug => $model) {
+    modelResourceRoute($slug, $model);
+}
+
+// More specific routes
+
+Route::get(
+    'settings/{code}/{codeAlt}',
+    [Controllers\Setting::class, 'showByCode']
+);
+
+RouteFactory::models([Models\Customer::class], ['customer'])->generate();

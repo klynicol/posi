@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Setting extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'code',
+        'code_alt',
+        'value',
+        'type',
+    ];
 }

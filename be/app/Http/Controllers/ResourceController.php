@@ -3,6 +3,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+/**
+ * This is a generic controller for resources.
+ * 
+ * It is intended to be extended by other controllers.
+ * 
+ * @author Mark Wickline
+ * @version 2022-12-11
+ */
 class ResourceController extends Controller
 {
     /**

@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { BaseCodeDescription } from '../../base/types';
+import { CodeDescription } from '../../base/types';
 
 export interface ClientSettings {
-    checkoutGridItemDisplayType: BaseCodeDescription
+    checkoutGridItemDisplayType: CodeDescription
 }
 
 export interface AppSettings {

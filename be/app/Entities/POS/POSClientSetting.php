@@ -15,6 +15,10 @@ class POSClientSetting extends EntityBase
 
     public $checkoutGridItemDisplayType;
 
+    private static $checkoutGridItemDisplayTypeOptions = [
+        'picture' => "Display products with an image"
+    ];
+
     public function __construct($attributes = [])
     {
         $this->setDefaults();
@@ -23,20 +27,22 @@ class POSClientSetting extends EntityBase
 
     /**
      * Set default values
+     * 
+     * @return void
      */
     private function setDefaults()
     {
         $this->checkoutGridItemDisplayType = 
-            $this->t_firstCodeDesc($this->getCheckoutGridItemDisplayOptions());
+            $this->t_firstCodeDesc(self::$checkoutGridItemDisplayTypeOptions);
     }
 
     /**
+     * Get the options for the checkout grid item display type.
+     * 
      * @return array
      */
     public static function getCheckoutGridItemDisplayOptions()
     {
-        return [
-            'picture' => "Display products with an image"
-        ];
+        return self::$checkoutGridItemDisplayTypeOptions;
     }
 }

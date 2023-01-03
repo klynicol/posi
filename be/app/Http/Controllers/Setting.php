@@ -3,8 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Setting as SettingModel;
+use SebastianBergmann\Type\NullType;
 
-class ProductTagController extends Controller
+/**
+ * Settings Controller
+ * 
+ * @author Mark Wickline 2023-01-02
+ */
+class Setting extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,16 +24,6 @@ class ProductTagController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -34,7 +31,11 @@ class ProductTagController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'code' => 'required|max:255',
+            'code_alt' => 'required|max:255',
+            'value' => 'required',
+        ]);
     }
 
     /**
@@ -49,14 +50,23 @@ class ProductTagController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Get a setting by code and code alt
      *
-     * @param  int  $id
+     * @param  string  $code
+     * @param  string  $codeAlt
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function showByCode(string $code, string | null $codeAlt = null)
     {
-        //
+        if ($codeAlt) {
+            $setting = SettingModel::where('code', $code)
+                ->where('code_alt', $codeAlt)
+                ->first();
+            if ($setting) {
+                return $this->jsonResponse($setting->toArray());
+            }
+        }
+        return $this->jsonFailResponse('Setting not found', 404);
     }
 
     /**

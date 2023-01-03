@@ -22,9 +22,12 @@ class Controller extends BaseController
      * @param int $code
      * @return \Illuminate\Http\JsonResponse
      */
-    public static function jsonFailResponseStatic(string $message = '', int $code = 500){
-        $controller = new static();
-        return $controller->jsonFailResponse($message, $code);
+    protected function jsonResponse(mixed $data, string $message = '', int $code = 200){
+        return response()->json([
+            'data' => $data,
+            'status' => true,
+            'message' => $message,
+        ], $code);
     }
 
     /**
@@ -33,12 +36,9 @@ class Controller extends BaseController
      * @param int $code
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function jsonResponse(mixed $data, string $message = '', int $code = 200){
-        return response()->json([
-            'data' => $data,
-            'status' => true,
-            'message' => $message,
-        ], $code);
+    public static function jsonResponseStatic(mixed $data, string $message = '', int $code = 200){
+        $controller = new static();
+        return $controller->jsonResponse($data, $message, $code);
     }
 
     /**
@@ -51,5 +51,16 @@ class Controller extends BaseController
             'status' => false,
             'message' => $message
         ], $code);
+    }
+
+    /**
+     * @param mixed $data
+     * @param string $message
+     * @param int $code
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public static function jsonFailResponseStatic(string $message = '', int $code = 500){
+        $controller = new static();
+        return $controller->jsonFailResponse($message, $code);
     }
 }

@@ -1,4 +1,4 @@
-export interface BaseCodeDescription {
+export interface CodeDescription {
     code: string;
     description: string;
 }

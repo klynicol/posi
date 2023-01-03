@@ -29,4 +29,14 @@ abstract class EntityBase
             $this->$key = $value;
         }
     }
+
+    /**
+     * Convert the entity to its array representation.
+     *
+     * @return array
+     */
+    protected function toArray()
+    {
+        return get_object_vars($this);
+    }
 }
